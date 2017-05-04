@@ -1,8 +1,7 @@
 
-# AMon
+# AMon - Application Monitor
 
-RESUMO:
-AMOn - Application Monitor
+RESUMO: 
 
 AMon é um programa desenvolvido em C++ utilizando a biblioteca UPL que monitora a utilização de recursos de processos específicos no linux.
 
