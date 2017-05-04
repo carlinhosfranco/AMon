@@ -22,7 +22,7 @@ pbzip2 -p$1 -r -5 myfile.tar files*.txt
 echo $!
 ------------------------------------
 
-Para executar o APmon:
+Para executar o AMon:
 ------------------------------------
 user@machine:~$ apmon 4 2 pbzip.sh
 ------------------------------------
