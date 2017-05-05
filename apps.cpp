@@ -35,7 +35,7 @@ FILE *fIO;
 FILE *fGeneralMetrics;
 
 
-int app_monitor(int number_of_threads, int sleep_time, char *script_file){
+int app_monitor(int number_of_threads, unsigned int sleep_time, char *script_file){
 
 
 	time_t now = time(0);
@@ -47,9 +47,9 @@ int app_monitor(int number_of_threads, int sleep_time, char *script_file){
 	auto t_start = std::chrono::high_resolution_clock::now();
 
 	char buff[255];
-    sprintf(buff,"bash ./%s %d",script_file, number_of_threads);
+    	sprintf(buff,"bash ./%s %d",script_file, number_of_threads);
 
-    char *saida = UPL_getCommandResult(buff);
+    	char *saida = UPL_getCommandResult(buff);
 
 	sprintf(line_status,"ps aux | grep -c %s",saida);
 
@@ -86,20 +86,34 @@ int app_monitor(int number_of_threads, int sleep_time, char *script_file){
 		cout << "Erro ao abrir arquivo IO.txt" << endl;
 		return 1;
 	}
-
+	
+	time_t t;
+	struct tm * timeinfo;
+	
 	while(atoi(status) != ran || status != NULL){
 
 		if (UPL_init_cores_load_monitoring(idle, total_ticks) == NULL){
 			std::cout << "Error when UPL_init_cores_load_monitoring(...)" << std::endl;
 		}
+		
+		time (&t);
+		timeinfo = localtime(&t);
+		
+		usleep(sleep_time);
+		
+		fprintf(fCoreLoad, " %s \n", asctime(timeinfo));
+		apps_metrics.core_load = UPL_get_cores_load_average(idle, total_ticks);
+		for (int i=0; i<UPL_getNumOfCores(); i++)
+		fprintf(fCoreLoad, "CPU%d:\t%3.2lf%%\n", i, apps_metrics.core_load[i]);
 
-		sleep(sleep_time);
-
+		
+		time (&t);
+		timeinfo = localtime(&t);
+		fprintf(fMemPPid, " %s \n", asctime(timeinfo));
 		apps_metrics.memory_per_pid = UPL_getProcMemUsage_pid(atoi(saida));
 		if (apps_metrics.memory_per_pid == -1){
 			break;
 		}
-		
 		fprintf(fMemPPid, "Memory:\t%ld \n", apps_metrics.memory_per_pid);
 
 		status = UPL_getCommandResult(line_status);
@@ -108,9 +122,6 @@ int app_monitor(int number_of_threads, int sleep_time, char *script_file){
 		}
 
 		//Não poderia ser colocado em uma Thread???
-		apps_metrics.core_load = UPL_get_cores_load_average(idle, total_ticks);
-		for (int i=0; i<UPL_getNumOfCores(); i++)
-		fprintf(fCoreLoad, "CPU%d:\t%3.2lf%%\n", i, apps_metrics.core_load[i]);
 		
 		apps_metrics.ioMetrics = UPL_getCommandResult("iostat -d -m -x -y");
 		fprintf(fIO,"%s\n",apps_metrics.ioMetrics);
@@ -133,7 +144,9 @@ int app_monitor(int number_of_threads, int sleep_time, char *script_file){
 	}
 
 	auto t_total = chrono::duration<double>(t_end-t_start).count();
-	fprintf(fGeneralMetrics,"Executation Time: %f\n\n", t_total);
+	
+	fprintf(fGeneralMetrics,"Executation Time: %f\n\n", t_total);	
+	fprintf(fGeneralMetrics,"Threads: %d\n\n", number_of_threads);
 	
 	fprintf(fGeneralMetrics,"%s\n\n", hashtag);
 
@@ -161,7 +174,7 @@ int main(int argc, char *argv[])
 	}
 	int threads = atoi(argv[1]);
 
-	int get_time = atoi(argv[2]);
+	unsigned int get_time = atoi(argv[2]);
 
 	char *script = argv[3];
 
