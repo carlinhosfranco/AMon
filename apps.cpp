@@ -35,7 +35,7 @@ FILE *fIO;
 FILE *fGeneralMetrics;
 
 
-int app_monitor(int number_of_threads, unsigned int sleep_time, char *script_file){
+int app_monitor(int number_of_threads, double sleep_time, char *script_file){
 
 
 	time_t now = time(0);
@@ -174,10 +174,12 @@ int main(int argc, char *argv[])
 	}
 	int threads = atoi(argv[1]);
 
-	unsigned int get_time = atoi(argv[2]);
+	//unsigned int get_time = atoi(argv[2]);
+	double get_time = atof(argv[2]);
 
 	char *script = argv[3];
-
+	
+	cout << "Tempo: " << get_time << endl;
 	app_monitor(threads,get_time,script);
 
 	return 0;
