@@ -2,7 +2,7 @@
 Descrição: Programa para monitorar o uso de recursos do sistema e de processos especificos. 
 As métricas sao coletadas utilizando a biblioteca UPL.
 Autor: Carlos Alberto Franco Maron e-mail: francocaam@gmail.com
-Data: 14/04/2017 - Ultima atualizaçao: 20/04/2017
+Data: 14/04/2017 - Ultima atualizaçao: 05/05/2017
 */
 #include <iostream>
 #include <upl.h>
@@ -99,22 +99,23 @@ int app_monitor(int number_of_threads, double sleep_time, char *script_file){
 		time (&t);
 		timeinfo = localtime(&t);
 		
-		usleep(sleep_time);
+		//usleep(sleep_time);
+		sleep(sleep_time);
 		
-		fprintf(fCoreLoad, " %s \n", asctime(timeinfo));
+		fprintf(fCoreLoad, "%s", asctime(timeinfo));
 		apps_metrics.core_load = UPL_get_cores_load_average(idle, total_ticks);
 		for (int i=0; i<UPL_getNumOfCores(); i++)
-		fprintf(fCoreLoad, "CPU%d:\t%3.2lf%%\n", i, apps_metrics.core_load[i]);
+		fprintf(fCoreLoad, "CPU%d:\t%3.2lf%%", i, apps_metrics.core_load[i]);
 
 		
 		time (&t);
 		timeinfo = localtime(&t);
-		fprintf(fMemPPid, " %s \n", asctime(timeinfo));
+		fprintf(fMemPPid, "%s\n", asctime(timeinfo));
 		apps_metrics.memory_per_pid = UPL_getProcMemUsage_pid(atoi(saida));
 		if (apps_metrics.memory_per_pid == -1){
 			break;
 		}
-		fprintf(fMemPPid, "Memory:\t%ld \n", apps_metrics.memory_per_pid);
+		fprintf(fMemPPid, "Memory:\t%ld", apps_metrics.memory_per_pid);
 
 		status = UPL_getCommandResult(line_status);
 		if (status == NULL){
@@ -122,9 +123,11 @@ int app_monitor(int number_of_threads, double sleep_time, char *script_file){
 		}
 
 		//Não poderia ser colocado em uma Thread???
-		
+		time (&t);
+                timeinfo = localtime(&t);
+                fprintf(fIO, "%s", asctime(timeinfo));
 		apps_metrics.ioMetrics = UPL_getCommandResult("iostat -d -m -x -y");
-		fprintf(fIO,"%s\n",apps_metrics.ioMetrics);
+		fprintf(fIO,"%s",apps_metrics.ioMetrics);
 
 	}
 	auto t_end = std::chrono::high_resolution_clock::now();
@@ -145,8 +148,13 @@ int app_monitor(int number_of_threads, double sleep_time, char *script_file){
 
 	auto t_total = chrono::duration<double>(t_end-t_start).count();
 	
-	fprintf(fGeneralMetrics,"Executation Time: %f\n\n", t_total);	
-	fprintf(fGeneralMetrics,"Threads: %d\n\n", number_of_threads);
+	time (&t);
+	timeinfo = localtime(&t);
+
+	fprintf(fGeneralMetrics,"%s", asctime(timeinfo));
+	
+	fprintf(fGeneralMetrics,"Executation Time: %f\n", t_total);	
+	fprintf(fGeneralMetrics,"Threads: %d\n", number_of_threads);
 	
 	fprintf(fGeneralMetrics,"%s\n\n", hashtag);
 
@@ -156,11 +164,11 @@ int app_monitor(int number_of_threads, double sleep_time, char *script_file){
 		fprintf(fGeneralMetrics," %s\n\n", ERRO);
 	}
 	
-	fprintf(fGeneralMetrics,"%s\n\n", hashtag);
+	fprintf(fGeneralMetrics,"%s\n", hashtag);
 	
-	fprintf(fGeneralMetrics,"System Memory \n %s\n\n\n", apps_metrics.sys_mem);
+	fprintf(fGeneralMetrics,"System Memory \n %s\n", apps_metrics.sys_mem);
 	
-	fprintf(fGeneralMetrics,"%s\n\n", hashtag);	
+	fprintf(fGeneralMetrics,"%s\n", hashtag);	
 
 	fclose(fGeneralMetrics);
 
