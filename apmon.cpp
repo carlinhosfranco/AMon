@@ -115,7 +115,7 @@ int app_monitor(int number_of_threads, double sleep_time, char *script_file){
 		if (apps_metrics.memory_per_pid == -1){
 			break;
 		}
-		fprintf(fMemPPid, "Memory:\t%ld", apps_metrics.memory_per_pid);
+		fprintf(fMemPPid, "Memory:\t%ld\n", apps_metrics.memory_per_pid);
 
 		status = UPL_getCommandResult(line_status);
 		if (status == NULL){
