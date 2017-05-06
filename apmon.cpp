@@ -102,10 +102,10 @@ int app_monitor(int number_of_threads, double sleep_time, char *script_file){
 		//usleep(sleep_time);
 		sleep(sleep_time);
 		
-		fprintf(fCoreLoad, "%s", asctime(timeinfo));
+		fprintf(fCoreLoad, "%s\n", asctime(timeinfo));
 		apps_metrics.core_load = UPL_get_cores_load_average(idle, total_ticks);
 		for (int i=0; i<UPL_getNumOfCores(); i++)
-		fprintf(fCoreLoad, "CPU%d:\t%3.2lf%%", i, apps_metrics.core_load[i]);
+		fprintf(fCoreLoad, "CPU%d:\t%3.2lf%%\n", i, apps_metrics.core_load[i]);
 
 		
 		time (&t);
@@ -125,7 +125,7 @@ int app_monitor(int number_of_threads, double sleep_time, char *script_file){
 		//Não poderia ser colocado em uma Thread???
 		time (&t);
                 timeinfo = localtime(&t);
-                fprintf(fIO, "%s", asctime(timeinfo));
+                fprintf(fIO, "%s\n", asctime(timeinfo));
 		apps_metrics.ioMetrics = UPL_getCommandResult("iostat -d -m -x -y");
 		fprintf(fIO,"%s",apps_metrics.ioMetrics);
 
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 
 	char *script = argv[3];
 	
-	#cout << "Tempo: " << get_time << endl;
+	//cout << "Tempo: " << get_time << endl;
 	app_monitor(threads,get_time,script);
 
 	return 0;
