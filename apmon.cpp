@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 
 	char *script = argv[3];
 	
-	cout << "Tempo: " << get_time << endl;
+	#cout << "Tempo: " << get_time << endl;
 	app_monitor(threads,get_time,script);
 
 	return 0;
