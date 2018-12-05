@@ -23,9 +23,10 @@ echo $!
 ------------------------------------
 
 Para executar o AMon:
-<code>
-  user@machine:~$ apmon 4 2 pbzip.sh
-</code>
+` 
+user@machine:~$ apmon 4 2 pbzip.sh
+`
+
 apmon: binário de execução
 4: Número de threads
 2: intervalo de coleta
