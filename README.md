@@ -1,31 +1,36 @@
 
 # AMon - Application Monitor
 
-## RESUMO
+## Resumo
 
-AMon é um programa desenvolvido em C++ utilizando a biblioteca UPL que monitora a utilização de recursos de processos específicos no linux.
+AMon é um programa que monitora, coleta e armazena a quantidade de recursos utilizados por processos específicos no sistema operacional. Através do PID de cada processo, AMon consegue obter as informaões de consumo de CPU, memória e disco durante a execução. Todas as informações são coletadas em tempo real e entre um intervalo de tempo que pode ser definido pelo usuário.
 
-Inicialmente, foi desenvolvida para coletar métricas de processos executando os benchmarks NAS e PARSEC.
-Autor: Carlos Alberto Franco Maron
-Contato: francocaam at gmail dot com
+Inicialmente, foi desenvolvido para coletar a utilização de recursos dos benchmarks paralelos do NAS e PARSEC.
 
-## UTILIZANDO
 
-AMon monitora os processos a partir de um arquivo que é informado pela linha de comando. Dentro desse arquivo informado, deve haver a chamada do processo que você gostaria de monitorar e a sintaxe para retornar o PID do processo. Por exemplo, você quer monitorar um processo de compactação utilizando o pbzip2. Para isso, você deve criar um script bash com a chamada do pbzip2 e o número de threads e o comando echo $! que retorna o PID do pbzip2. Vale lembrar que  o número de threads definido pelo usuário é informado pelo AMon ao script bash criado. Portanto, o script bash deve receber o número de threads como argumento.
+## Dependências
 
-Explicando o cenário anterior, o usário terá os seguintes arquivos: pbzip.sh e apmon (binário).
+- [UPL](https://github.com/dalvangriebler/upl). *Utility Performance Library*.
+- [`iostat`](https://linux.die.net/man/1/iostat). 
+
+## Utilizando o AMon
+
+AMon monitora os processos a partir de um arquivo que deve ser informado pela linha de comando. Dentro deste arquivo, deve haver a chamada do processo que deve ser monitorado e a sintaxe para retornar o PID do processo. 
+
+Para demonstração, o processo de compressão paralelo com *pbzip2* será monitorado pelo AMon. Para isso, primeiramente é necessário criar um shell script com a sintaxe do pbzip2 e o comando `echo $!` que retorna o PID do processo do pbzip2. O número de *threads* que *pbzip2* será executado é informado pelo AMon. Portanto, é muito importante que programa a ser monitorado utilize argumento para receber o número de *threads*. Veja o exemplo no *script*:
+
 ```bash
 #!/bin/bash
 #File: pbzip.sh
 pbzip2 -p$1 -r -5 myfile.tar files*.txt
 echo $!
 ```
-
-## Para executar o AMon
+Na linha de comando do terminal a sintaxe fica da seguinte forma:
 
 ```bash
 user@machine:~$ apmon 4 2 pbzip.sh
 ```
+
 > apmon: binário de execução
 
 > 4: Número de threads
@@ -34,19 +39,15 @@ user@machine:~$ apmon 4 2 pbzip.sh
 
 > pbzip.sh: arquivo script comando para ser monitorado.
 
+## Resultado do AMon
 
-Para utilizar o AMon, você precisa ter instalado a biblioteca UPL e a ferramenta `iostat` para as métricas de disco.
-
-
-## RESULTADOS
-
-As métricas coletadas são armazenadas em arquivos dentro do diretório onde APmon foi executado.
+As métricas coletadas são armazenadas em arquivos dentro do diretório onde AMon foi executado.
 Os arquivos são:
 
-- core_load.txt: Informa o uso dos cores (porcentagem) em cada intervalo informado.
+- core_load.txt: contêm os valores da utilização (em porcentagem) dos *cores* do processador dentro do intervalo de tempo informado pelo usuário.
 
-- MemPPid.txt: Informa o uso de memória baseando-se pelo PID do processo. A frequência de coleta é baseada no intervalo informado.
+- MemPPid.txt: contêm os valores do uso de memória de cada processo dentro do intervalo de tempo informado pelo usuário.
 
-- IO.txt: As métricas do uso de disco do sistema são informadas.
+- IO.txt: contêm os valores do uso de disco do sistema.
 
-- GeneralMetrics.txt: Métricas gerais são informadas, tais como: Memória do sistema antes da execução, cache missing e tempo de execução (estimado).
+- GeneralMetrics.txt: contêm métricas gerais, tais como: utilização da memória do sistema antes da execução, *cache missing* e tempo de execução (estimado).
